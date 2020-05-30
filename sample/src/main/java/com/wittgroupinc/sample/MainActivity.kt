@@ -10,15 +10,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val socket = MyWebSocket()
-        val deserializer = MyDeserializer<User>()
-        val jsonRpcClient: JsonRpcClientImpl<User> =
-            JsonRpcClientImpl(socket, deserializer, 100L, Logger())
         val service =
-            createJsonRpcService(MyService::class.java, jsonRpcClient, deserializer, logger)
-        service.myMethod(10, "Hello", emptyList())
+            create(MyService::class.java)
 
-        socket.messages()
+        service.myMethod(10, "Hello", emptyList())
 
     }
 

@@ -1,13 +1,16 @@
 package com.wittgroupinc.easyjsonrpc
 
+import android.util.Log
 import io.reactivex.Single
 import java.lang.reflect.*
 import java.util.concurrent.atomic.AtomicLong
 
-fun <T, B> createJsonRpcService(service: Class<T>,
-                                client: JsonRpcClient<B>,
-                                resultDeserializer: Deserializer<B>,
-                                logger: (String) -> Unit = {}): T {
+fun <T, B> createJsonRpcService(
+    service: Class<T>,
+    client: JsonRpcClient<B>,
+    resultDeserializer: Deserializer<B>,
+    logger: (String) -> Unit = {}
+): T {
 
     val classLoader = service.classLoader
     val interfaces = arrayOf<Class<*>>(service)
@@ -17,10 +20,12 @@ fun <T, B> createJsonRpcService(service: Class<T>,
     return Proxy.newProxyInstance(classLoader, interfaces, invocationHandler) as T
 }
 
-private fun <T, B> createInvocationHandler(service: Class<T>,
-                                           client: JsonRpcClient<B>,
-                                           resultDeserializer: Deserializer<B>,
-                                           logger: (String) -> Unit): InvocationHandler {
+private fun <T, B> createInvocationHandler(
+    service: Class<T>,
+    client: JsonRpcClient<B>,
+    resultDeserializer: Deserializer<B>,
+    logger: (String) -> Unit
+): InvocationHandler {
     return object : InvocationHandler {
 
         val requestId = AtomicLong(0)
@@ -56,8 +61,10 @@ private fun Method.jsonRpcParameters(args: Array<Any?>?, service: Class<*>): Map
         .mapIndexed { i, a ->
             when (a) {
                 is JsonRpcParam -> a.value
-                else -> error("Argument #$i of ${service.name}#$name()" +
-                        " must be annotated with @${JsonRpcParam::class.java.simpleName}")
+                else -> error(
+                    "Argument #$i of ${service.name}#$name()" +
+                            " must be annotated with @${JsonRpcParam::class.java.simpleName}"
+                )
             }
         }
         .mapIndexed { i, name -> name to args?.get(i) }
@@ -72,3 +79,15 @@ private val Method.resultGenericTypeArgument: Type
     get() = (this.genericReturnType as ParameterizedType).actualTypeArguments.first()
 
 private class NullJsonRpcCallResultException : Exception()
+
+fun <T> create(service: Class<T>): T {
+    val socket = MyWebSocket()
+    val deserializer = MyDeserializer<T>()
+    val jsonRpcClient: JsonRpcClientImpl<T> =
+        JsonRpcClientImpl(socket, deserializer, 100L, Logger())
+    return createJsonRpcService(service, jsonRpcClient, deserializer, logger)
+}
+
+private val logger = fun(msg: String) {
+    Log.d("tag", msg)
+}

@@ -7,7 +7,7 @@ import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.TimeUnit
 
 class JsonRpcClientImpl<R>(
-    private val rxWebSocket: RxWebSocket<R>,
+    private val rxWebSocket: RxWebSocket<Any>,
     private val serializer: Deserializer<R>,
     private val timeout: Long = 5000L,
     private val logger: Logger
