@@ -1,2 +1,2 @@
-include ':sample', ':easyjsonrpc'
+include ':sample', ':easyjsonrpc', ':server'
 rootProject.name='EasyJsonRpc'

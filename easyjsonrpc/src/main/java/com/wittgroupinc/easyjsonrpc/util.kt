@@ -1,5 +1,6 @@
 package com.wittgroupinc.easyjsonrpc
 
+import android.content.Context
 import android.util.Log
 import io.reactivex.Single
 import java.lang.reflect.*
@@ -80,11 +81,18 @@ private val Method.resultGenericTypeArgument: Type
 
 private class NullJsonRpcCallResultException : Exception()
 
-fun <T> create(service: Class<T>): T {
-    val socket = MyWebSocket()
+fun <T> create(service: Class<T>, context: Context): T {
+
+    val certificateUtil = SslClientCertificateUtil()
+    val socket = MyWebSocket(
+        certificateUtil.socketFactory(context),
+        certificateUtil.sslTrustManager(context)
+    )
+    socket.connect()
+    Thread.sleep(2000)
     val deserializer = MyDeserializer<T>()
     val jsonRpcClient: JsonRpcClientImpl<T> =
-        JsonRpcClientImpl(socket, deserializer, 100L, Logger())
+        JsonRpcClientImpl(socket, deserializer, 300000L, Logger())
     return createJsonRpcService(service, jsonRpcClient, deserializer, logger)
 }
 

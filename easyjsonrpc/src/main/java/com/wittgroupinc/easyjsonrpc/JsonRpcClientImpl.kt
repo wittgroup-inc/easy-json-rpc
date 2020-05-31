@@ -17,22 +17,27 @@ class JsonRpcClientImpl<R>(
         val requestStr = serializer.serialize(request)
         logger.d(LOG_TAG, "JsonRpc request = $request")
         return rxWebSocket.sendMessage(requestStr)
-            .flatMap { responses(request.id, timeout, responseParser) }
+            .flatMap {
+                responses(request.id, timeout, responseParser)
+            }
     }
 
-    private fun <T> responses(
+    private fun <R> responses(
         requestId: Long,
         timeout: Long,
-        responseParser: (JsonElement) -> T
-    ): Single<T> {
+        responseParser: (JsonElement) -> R
+    ): Single<R> {
         return rxWebSocket.messages()
             .observeOn(Schedulers.computation())
+            .log("chutiya1")
             .ofType(JsonRpcResponse::class.java)
-            .doOnNext { logger.d(LOG_TAG, "JsonRpc response = $it") }
+            .log("chutiya2")
             .takeUntil(
                 rxWebSocket.observeState()
-                    .skip(1)
-                    .ofType(RxWebSocketState.Disconnected::class.java)
+                    .log("chutiya3")
+                    //.skip(1)
+                    //.ofType(RxWebSocketState.Disconnected::class.java)
+                    .log("chutiya4")
             )
             .switchIfEmpty(
                 Observable.error(
@@ -42,21 +47,28 @@ class JsonRpcClientImpl<R>(
                     )
                 )
             )
-            .filter { response -> response.id == requestId }
+            .filter {
+                    response -> response.id == requestId
+            }
+            .log("chutiya3")
             .timeout(timeout, TimeUnit.MILLISECONDS, Schedulers.computation())
+            .log("chutiya3")
             .firstOrError()
+            .log("chutiya3")
             .flatMap { response ->
                 when {
                     response.error != null -> {
                         val ex = JsonRpcCallException(response.error.code, response.error.message)
                         Single.error(ex)
                     }
+
                     else -> {
                         val result = responseParser(response.result)
                         Single.just(result)
                     }
                 }
             }
+
     }
 
     companion object {
