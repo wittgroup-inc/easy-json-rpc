@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.java_websocket.WebSocket
 import org.java_websocket.handshake.ClientHandshake
+import org.java_websocket.server.DefaultSSLWebSocketServerFactory
 
 
 class MainActivity : AppCompatActivity(), ServerCallback {
@@ -22,8 +23,8 @@ class MainActivity : AppCompatActivity(), ServerCallback {
 
     private fun init() {
         server = Server(8887, this)
-        // Need to comment this line if CA certificate does not work.
-        // receiver.setWebSocketFactory(DefaultSSLWebSocketServerFactory(CertificateUtil.getContext(this)))
+        // Need to comment this line if CA certificate1 does not work.
+        server.setWebSocketFactory(DefaultSSLWebSocketServerFactory(CertificateUtil.getContext(this)))
         start_button.setOnClickListener { startServer() }
         stop_button.setOnClickListener { stopServer() }
     }

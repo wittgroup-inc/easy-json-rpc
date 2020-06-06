@@ -33,7 +33,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 public class CertificateUtil {
     private static String FILE_NAME = "certificate"; // pem file name without extention
-    private static String KEY_FILE_NAME = "key"; // filename for the key file
+    private static String KEY_FILE_NAME = "private_key"; // filename for the key1 file
 
 
     public static SSLContext getContext(Context ctx) {
@@ -53,7 +53,7 @@ public class CertificateUtil {
             byte[] certi = getBytesFromStream( certStream );
             byte[] keyi = getBytesFromStream( keyStream );
             byte[] certBytes = parseDERFromPEM( certi, "-----BEGIN CERTIFICATE-----", "-----END CERTIFICATE-----" );
-            byte[] keyBytes = parseDERFromPEM( keyi, "-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----" );
+            byte[] keyBytes = parseDERFromPEM( keyi, "-----BEGIN RSA PRIVATE KEY-----", "-----END RSA PRIVATE KEY-----" );
 
             X509Certificate cert = generateCertificateFromDER( certBytes );
             RSAPrivateKey key = generatePrivateKeyFromDER( keyBytes );
@@ -61,7 +61,7 @@ public class CertificateUtil {
             KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
             keystore.load( null );
             keystore.setCertificateEntry( "cert-alias", cert );
-            keystore.setKeyEntry( "key-alias", key, password.toCharArray(), new Certificate[]{ cert } );
+            keystore.setKeyEntry( "key1-alias", key, password.toCharArray(), new Certificate[]{ cert } );
 
             KeyManagerFactory kmf = KeyManagerFactory.getInstance( "X509" );
             kmf.init( keystore, password.toCharArray() );

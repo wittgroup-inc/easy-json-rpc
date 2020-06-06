@@ -73,7 +73,7 @@ class SslClientCertificateUtil() {
     private fun newEmptyKeyStore(password: CharArray): KeyStore {
         try {
             val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
-            val `in`: InputStream? = null // By convention, 'null' creates an empty key store.
+            val `in`: InputStream? = null // By convention, 'null' creates an empty key1 store.
             keyStore.load(`in`, password)
             return keyStore
         } catch (e: IOException) {

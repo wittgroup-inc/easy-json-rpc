@@ -45,11 +45,11 @@ class MyWebSocket(
 
     private fun sslConnectionRequest(address: String, port: Int) {
         val client = OkHttpClient.Builder()
-//            .sslSocketFactory(
-//                sslSocketFactory,
-//                sslTrustManager
-//            )
-//            .hostnameVerifier(dummyVerifier)
+            .sslSocketFactory(
+                sslSocketFactory,
+                sslTrustManager
+            )
+            .hostnameVerifier(dummyVerifier)
             .build()
 
         val url = Constants.PROTOCOL + "$address:$port"
