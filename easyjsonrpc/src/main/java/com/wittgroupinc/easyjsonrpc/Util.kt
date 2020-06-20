@@ -1,7 +1,14 @@
 package com.wittgroupinc.easyjsonrpc
 
-import android.content.Context
 import android.util.Log
+import com.wittgroupinc.easyjsonrpc.annotations.JsonRpc
+import com.wittgroupinc.easyjsonrpc.annotations.JsonRpcParam
+import com.wittgroupinc.easyjsonrpc.client.JsonRpcClient
+import com.wittgroupinc.easyjsonrpc.client.JsonRpcClientImpl
+import com.wittgroupinc.easyjsonrpc.logger.Logger
+import com.wittgroupinc.easyjsonrpc.models.JsonRpcRequest
+import com.wittgroupinc.easyjsonrpc.serializer.SerializerImpl
+import com.wittgroupinc.easyjsonrpc.serializer.Serializer
 import io.reactivex.Single
 import java.lang.reflect.*
 import java.util.concurrent.atomic.AtomicLong
@@ -9,13 +16,13 @@ import java.util.concurrent.atomic.AtomicLong
 fun <T, B> createJsonRpcService(
     service: Class<T>,
     client: JsonRpcClient<B>,
-    resultDeserializer: Deserializer<B>,
+    resultSerializer: Serializer<B>,
     logger: (String) -> Unit = {}
 ): T {
 
     val classLoader = service.classLoader
     val interfaces = arrayOf<Class<*>>(service)
-    val invocationHandler = createInvocationHandler(service, client, resultDeserializer, logger)
+    val invocationHandler = createInvocationHandler(service, client, resultSerializer, logger)
 
     @Suppress("UNCHECKED_CAST")
     return Proxy.newProxyInstance(classLoader, interfaces, invocationHandler) as T
@@ -24,7 +31,7 @@ fun <T, B> createJsonRpcService(
 private fun <T, B> createInvocationHandler(
     service: Class<T>,
     client: JsonRpcClient<B>,
-    resultDeserializer: Deserializer<B>,
+    resultSerializer: Serializer<B>,
     logger: (String) -> Unit
 ): InvocationHandler {
     return object : InvocationHandler {
@@ -44,13 +51,17 @@ private fun <T, B> createInvocationHandler(
             val methodName = methodAnnotation.value
             val parameters = method.jsonRpcParameters(args, service)
 
-            val request = JsonRpcRequest(id, methodName, parameters)
+            val request = JsonRpcRequest(
+                id,
+                methodName,
+                parameters
+            )
             val returnType = method.resultGenericTypeArgument
 
             logger("JsonRPC: Calling: $request")
             return client.call(request) { result ->
                 logger("JsonRPC: Parsing $returnType from result=$result")
-                resultDeserializer.deserialize(returnType, result)
+                resultSerializer.deserialize(returnType, result)
             }
         }
     }
@@ -79,23 +90,19 @@ private val Method.resultGenericTypeArgument: Type
     @Suppress("CAST_NEVER_SUCCEEDS")
     get() = (this.genericReturnType as ParameterizedType).actualTypeArguments.first()
 
-private class NullJsonRpcCallResultException : Exception()
-
-fun <T> create(service: Class<T>, context: Context): T {
-
-    val certificateUtil = SslClientCertificateUtil()
-    val socket = MyWebSocket(
-        certificateUtil.socketFactory(context),
-        certificateUtil.sslTrustManager(context)
-    )
-    socket.connect()
+fun <T> create(service: Class<T>): T {
     Thread.sleep(2000)
-    val deserializer = MyDeserializer<T>()
+    val deserializer = SerializerImpl<T>()
     val jsonRpcClient: JsonRpcClientImpl<T> =
-        JsonRpcClientImpl(socket, deserializer, 300000L, Logger())
+        JsonRpcClientImpl(
+            EasyJsonRpc.rxWebSocketImpl,
+            deserializer,
+            300000L,
+            Logger()
+        )
     return createJsonRpcService(service, jsonRpcClient, deserializer, logger)
 }
 
 private val logger = fun(msg: String) {
-    Log.d("tag", msg)
+    Log.d("Util", msg)
 }

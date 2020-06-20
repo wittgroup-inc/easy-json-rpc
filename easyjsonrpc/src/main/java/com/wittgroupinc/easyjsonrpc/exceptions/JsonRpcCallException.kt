@@ -1,4 +1,4 @@
-package com.wittgroupinc.easyjsonrpc
+package com.wittgroupinc.easyjsonrpc.exceptions
 
 import java.lang.RuntimeException
 

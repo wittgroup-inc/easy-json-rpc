@@ -1,4 +1,4 @@
-package com.wittgroupinc.easyjsonrpc
+package com.wittgroupinc.easyjsonrpc.models
 
 data class JsonRpcError(
     val code: Int,

@@ -1,4 +1,4 @@
-package com.wittgroupinc.easyjsonrpc
+package com.wittgroupinc.easyjsonrpc.models
 
 sealed class RxWebSocketState {
     data class Disconnected(val b: String) : RxWebSocketState()

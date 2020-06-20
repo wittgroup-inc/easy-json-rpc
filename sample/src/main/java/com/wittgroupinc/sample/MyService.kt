@@ -1,11 +1,11 @@
 package com.wittgroupinc.sample
 
-import com.wittgroupinc.easyjsonrpc.JsonRpc
-import com.wittgroupinc.easyjsonrpc.JsonRpcParam
+import com.wittgroupinc.easyjsonrpc.annotations.JsonRpc
+import com.wittgroupinc.easyjsonrpc.annotations.JsonRpcParam
 import io.reactivex.Single
 
 
-interface MyService<User> {
+interface MyService {
     @JsonRpc("myMethod")
     fun myMethod(
         @JsonRpcParam("param1") a: Int,

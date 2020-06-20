@@ -1,5 +1,6 @@
-package com.wittgroupinc.easyjsonrpc
+package com.wittgroupinc.easyjsonrpc.socket
 
+import com.wittgroupinc.easyjsonrpc.models.RxWebSocketState
 import io.reactivex.Observable
 import io.reactivex.Single
 

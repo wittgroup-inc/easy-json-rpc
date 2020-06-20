@@ -1,6 +1,6 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package com.wittgroupinc.easyjsonrpc
+package com.wittgroupinc.easyjsonrpc.logger
 
 import android.text.TextUtils
 import android.util.Log
@@ -43,14 +43,26 @@ inline fun getTagWithPath(suffix: String?) =
 
 inline fun <reified T> Single<T>.log(tag: String? = null): Single<T> {
     val tag = getTagWithPath(tag)
-    return doOnEvent { success, error -> printEvent(tag, success, error) }
+    return doOnEvent { success, error ->
+        printEvent(
+            tag,
+            success,
+            error
+        )
+    }
             .doOnSubscribe { Log.d(tag, "Subscribe") }
             .doOnDispose { Log.d(tag, "Dispose") }
 }
 
 inline fun <reified T> Maybe<T>.log(tag: String? = null): Maybe<T> {
     val tag = getTagWithPath(tag)
-    return doOnEvent { success, error -> printEvent(tag, success, error) }
+    return doOnEvent { success, error ->
+        printEvent(
+            tag,
+            success,
+            error
+        )
+    }
             .doOnSubscribe { Log.d(tag, "Subscribe") }
             .doOnDispose { Log.d(tag, "Dispose") }
 }

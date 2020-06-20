@@ -1,6 +1,13 @@
-package com.wittgroupinc.easyjsonrpc
+package com.wittgroupinc.easyjsonrpc.client
 
 import com.google.gson.JsonElement
+import com.wittgroupinc.easyjsonrpc.exceptions.JsonRpcCallException
+import com.wittgroupinc.easyjsonrpc.logger.Logger
+import com.wittgroupinc.easyjsonrpc.models.JsonRpcRequest
+import com.wittgroupinc.easyjsonrpc.models.JsonRpcResponse
+import com.wittgroupinc.easyjsonrpc.models.RxWebSocketState
+import com.wittgroupinc.easyjsonrpc.serializer.Serializer
+import com.wittgroupinc.easyjsonrpc.socket.RxWebSocket
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -8,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 class JsonRpcClientImpl<R>(
     private val rxWebSocket: RxWebSocket<Any>,
-    private val serializer: Deserializer<R>,
+    private val serializer: Serializer<R>,
     private val timeout: Long = 5000L,
     private val logger: Logger
 ) : JsonRpcClient<R> {
@@ -29,15 +36,11 @@ class JsonRpcClientImpl<R>(
     ): Single<R> {
         return rxWebSocket.messages()
             .observeOn(Schedulers.computation())
-            .log("chutiya1")
             .ofType(JsonRpcResponse::class.java)
-            .log("chutiya2")
             .takeUntil(
                 rxWebSocket.observeState()
-                    .log("chutiya3")
-                    //.skip(1)
-                    //.ofType(RxWebSocketState.Disconnected::class.java)
-                    .log("chutiya4")
+                    .skip(1)
+                    .ofType(RxWebSocketState.Disconnected::class.java)
             )
             .switchIfEmpty(
                 Observable.error(
@@ -50,15 +53,16 @@ class JsonRpcClientImpl<R>(
             .filter {
                     response -> response.id == requestId
             }
-            .log("chutiya3")
             .timeout(timeout, TimeUnit.MILLISECONDS, Schedulers.computation())
-            .log("chutiya3")
             .firstOrError()
-            .log("chutiya3")
             .flatMap { response ->
                 when {
                     response.error != null -> {
-                        val ex = JsonRpcCallException(response.error.code, response.error.message)
+                        val ex =
+                            JsonRpcCallException(
+                                response.error.code,
+                                response.error.message
+                            )
                         Single.error(ex)
                     }
 
@@ -72,7 +76,7 @@ class JsonRpcClientImpl<R>(
     }
 
     companion object {
-        val LOG_TAG = "Hello"
+        val LOG_TAG = "JsonRpcClientImpl"
         val JSON_RPC_CLOSED = 100
     }
 

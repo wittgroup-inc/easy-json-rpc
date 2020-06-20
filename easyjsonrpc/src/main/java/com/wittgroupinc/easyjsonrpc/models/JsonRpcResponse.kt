@@ -1,4 +1,4 @@
-package com.wittgroupinc.easyjsonrpc
+package com.wittgroupinc.easyjsonrpc.models
 
 import com.google.gson.JsonElement
 

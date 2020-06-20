@@ -1,6 +1,8 @@
-package com.wittgroupinc.easyjsonrpc
+package com.wittgroupinc.easyjsonrpc.helpers
 
 import android.content.Context
+import com.wittgroupinc.easyjsonrpc.Constants
+import com.wittgroupinc.easyjsonrpc.R
 import java.io.IOException
 import java.io.InputStream
 import java.security.GeneralSecurityException
@@ -20,7 +22,7 @@ class SslClientCertificateUtil() {
     private fun readCertificate(context: Context): InputStream {
         try {
             val caInput = context.applicationContext.resources.openRawResource(
-                    R.raw.certificate
+                R.raw.certificate
             )
             return caInput
         } catch (e: GeneralSecurityException) {

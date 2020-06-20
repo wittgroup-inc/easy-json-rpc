@@ -6,27 +6,34 @@ import android.os.Bundle
 import android.util.Log
 import com.wittgroupinc.easyjsonrpc.*
 import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlin.contracts.contract
 
 class MainActivity : AppCompatActivity() {
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        EasyJsonRpc.connect(this)
 
         val service =
-            create(MyService::class.java, this)
+            create(MyService::class.java)
+        sendRequest.setOnClickListener { v ->
+            run {
+                val result = service.myMethod(10, "Hello", emptyList())
+                result
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnSuccess { a ->
+                        Log.d("MainActivity", "success->${a}")
+                    }
+                    .doOnError {
 
-        val result = service.myMethod(10, "Hello", emptyList())
-        result
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnSuccess { a ->
-                Log.d("MainActivity", "success->${a.toString()}")
+                        Log.d("MainActivity", "error->$it")
+                    }
+                    .subscribe()
             }
-            .doOnError {
+        }
 
-                Log.d("MainActivity", "error->$it")
-            }
-            .subscribe()
 
     }
 
