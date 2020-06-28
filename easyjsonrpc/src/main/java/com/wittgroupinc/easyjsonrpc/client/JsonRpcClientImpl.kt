@@ -16,7 +16,7 @@ import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 class JsonRpcClientImpl<R>(
-    private val rxWebSocket: RxWebSocket<Any>,
+    private val rxWebSocket: RxWebSocket,
     private val serializer: Serializer<R>,
     private val timeout: Long = 5000L,
     private val logger: Logger

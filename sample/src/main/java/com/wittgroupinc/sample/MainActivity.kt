@@ -14,10 +14,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        EasyJsonRpc.connect(this)
-
+        Runtime.init(this)
+        val client = EasyJsonRpc()
         val service =
-            create(MyService::class.java)
+            client.create(MyService::class.java)
         sendRequest.setOnClickListener { v ->
             run {
                 val result = service.myMethod(10, "Hello", emptyList())

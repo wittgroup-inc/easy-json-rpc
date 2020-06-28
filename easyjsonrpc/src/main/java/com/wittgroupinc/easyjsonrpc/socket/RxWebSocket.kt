@@ -4,11 +4,11 @@ import com.wittgroupinc.easyjsonrpc.models.RxWebSocketState
 import io.reactivex.Observable
 import io.reactivex.Single
 
-interface RxWebSocket<T> {
+interface RxWebSocket {
 
     fun sendMessage(message: String): Single<Unit>
 
-    fun messages(): Observable<T>
+    fun messages(): Observable<Any>
 
     fun observeState(): Observable<RxWebSocketState>
 

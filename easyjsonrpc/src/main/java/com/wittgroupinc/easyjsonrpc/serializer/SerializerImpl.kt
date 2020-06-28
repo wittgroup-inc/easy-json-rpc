@@ -12,6 +12,4 @@ class SerializerImpl<T> :
     override fun deserialize(type: Type, result: JsonElement): T {
         return gson.fromJson<T>(result, type)
     }
-
-
 }

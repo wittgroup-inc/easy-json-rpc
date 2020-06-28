@@ -17,7 +17,7 @@ import javax.net.ssl.X509TrustManager
 class RxWebSocketImpl(
     private val sslSocketFactory: SSLSocketFactory,
     private val sslTrustManager: X509TrustManager
-) : RxWebSocket<Any>, WebSocketListener() {
+) : RxWebSocket, WebSocketListener() {
     private val statePublisher : PublishSubject<RxWebSocketState> = PublishSubject.create()
     private val state = statePublisher.subscribeOn(Schedulers.io())
     private val messagePublisher: PublishSubject<Any> = PublishSubject.create()
