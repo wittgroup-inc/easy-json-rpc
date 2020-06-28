@@ -39,7 +39,7 @@ private fun <T, B> createInvocationHandler(
         val requestId = AtomicLong(0)
 
         @Throws(Throwable::class)
-        override fun invoke(proxy: Any, method: Method, args: Array<Any?>?): Any {
+        override fun invoke(proxy: Any, method: Method, args: Array<Any?>?): Any? {
             val methodAnnotation =
                 method.getAnnotation(JsonRpc::class.java) ?: return method.invoke(this, args)
 
@@ -91,7 +91,6 @@ private val Method.resultGenericTypeArgument: Type
     get() = (this.genericReturnType as ParameterizedType).actualTypeArguments.first()
 
 fun <T> create(service: Class<T>): T {
-    Thread.sleep(2000)
     val deserializer = SerializerImpl<T>()
     val jsonRpcClient: JsonRpcClientImpl<T> =
         JsonRpcClientImpl(

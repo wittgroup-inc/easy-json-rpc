@@ -1,5 +1,6 @@
 package com.wittgroupinc.easyjsonrpc.client
 
+import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.wittgroupinc.easyjsonrpc.exceptions.JsonRpcCallException
 import com.wittgroupinc.easyjsonrpc.logger.Logger
@@ -11,6 +12,7 @@ import com.wittgroupinc.easyjsonrpc.socket.RxWebSocket
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import java.lang.Exception
 import java.util.concurrent.TimeUnit
 
 class JsonRpcClientImpl<R>(
@@ -36,6 +38,19 @@ class JsonRpcClientImpl<R>(
     ): Single<R> {
         return rxWebSocket.messages()
             .observeOn(Schedulers.computation())
+            .flatMap {
+                //TODO Need to revisit
+                var response: JsonRpcResponse? = null
+                if (it is String) {
+                    try {
+                        var gson = Gson()
+                        response = gson.fromJson(it, JsonRpcResponse::class.java)
+                    } catch (e: Exception) {
+
+                    }
+                }
+                response?.let { Observable.just(response) } ?: Observable.just(it)
+            }
             .ofType(JsonRpcResponse::class.java)
             .takeUntil(
                 rxWebSocket.observeState()
@@ -50,8 +65,8 @@ class JsonRpcClientImpl<R>(
                     )
                 )
             )
-            .filter {
-                    response -> response.id == requestId
+            .filter { response ->
+                response.id == requestId
             }
             .timeout(timeout, TimeUnit.MILLISECONDS, Schedulers.computation())
             .firstOrError()
