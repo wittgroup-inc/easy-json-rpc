@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity(), ServerCallback {
 
     override fun onMessage(conn: WebSocket?, message: String?) {
         showMessage("${resolveHostName(conn)} : $message")
-        conn?.send("{\"id\": 1,\"result\": {\"userId\": 12,\"userName\": \"Pawan\"}}")
+        conn?.send("{\"id\":1,\"result\":{\"userId\":12,\"userName\":\"Pawan\"},\"jsonrpc\":\"2.0\"}")
     }
 
 
