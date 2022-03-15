@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity(), ServerCallback {
             start_button.visibility = View.GONE
             stop_button.visibility = View.VISIBLE
         } catch (e: IllegalStateException) {
-            Log.e("MainActivity", e.message)
+            e.message?.let { Log.e("MainActivity", it) }
         }
     }
 
